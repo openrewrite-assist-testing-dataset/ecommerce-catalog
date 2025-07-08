@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: ecommerce_catalog
+          MYSQL_USER: catalog_user
+          MYSQL_PASSWORD: catalog_pass
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+        ports:
+          - 3306:3306
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+    
+    - name: Cache Gradle packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.gradle/caches
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+        restore-keys: ${{ runner.os }}-gradle
+    
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    
+    - name: Wait for MySQL
+      run: |
+        until mysqladmin ping -h"127.0.0.1" -P3306 -uroot -proot --silent; do
+          echo 'waiting for mysql...'
+          sleep 1
+        done
+    
+    - name: Run build
+      run: ./gradlew build
+    
+    - name: Build Docker image
+      run: docker build -t ecommerce-catalog:${{ github.sha }} .
+    
+    - name: Run security scan
+      uses: anchore/scan-action@v4
+      with:
+        image: "ecommerce-catalog:${{ github.sha }}"
+        fail-build: false
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results
+        path: |
+          **/build/test-results/test/
+          **/build/reports/tests/test/
