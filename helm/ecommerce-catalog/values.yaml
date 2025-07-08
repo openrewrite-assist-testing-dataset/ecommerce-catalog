@@ -1,0 +1,98 @@
+replicaCount: 3
+
+image:
+  repository: ecommerce-catalog
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 2000
+
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 8080
+  adminPort: 8081
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - host: catalog-api.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+mysql:
+  enabled: true
+  auth:
+    rootPassword: "root"
+    database: "ecommerce_catalog"
+    username: "catalog_user"
+    password: "catalog_pass"
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+
+externalDatabase:
+  host: ""
+  port: 3306
+  database: "ecommerce_catalog"
+  username: "catalog_user"
+  password: "catalog_pass"
+
+oauth2:
+  clientId: "catalog-client"
+  clientSecret: "catalog-secret-2023"
+  scope: "catalog:read catalog:write"
+  tokenEndpoint: "https://auth.example.com/oauth/token"
+  userInfoEndpoint: "https://auth.example.com/oauth/userinfo"
+
+catalogSettings:
+  maxProductsPerPage: 100
+  defaultPageSize: 20
+  enableCategoryHierarchy: true
+  stockThreshold: 10

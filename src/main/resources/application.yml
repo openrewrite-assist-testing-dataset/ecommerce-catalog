@@ -1,0 +1,76 @@
+server:
+  type: simple
+  applicationContextPath: /
+  adminContextPath: /admin
+  connector:
+    type: http
+    port: 8080
+    bindHost: 0.0.0.0
+  adminConnectors:
+    - type: http
+      port: 8081
+      bindHost: 0.0.0.0
+
+database:
+  driverClass: com.mysql.cj.jdbc.Driver
+  user: catalog_user
+  password: catalog_pass
+  url: jdbc:mysql://localhost:3306/ecommerce_catalog?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+  properties:
+    charSet: UTF-8
+    hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
+    hibernate.hbm2ddl.auto: validate
+    hibernate.show_sql: false
+    hibernate.format_sql: true
+    hibernate.use_sql_comments: true
+    hibernate.jdbc.time_zone: UTC
+  maxWaitForConnection: 1s
+  validationQuery: "SELECT 1"
+  validationQueryTimeout: 3s
+  minSize: 8
+  maxSize: 32
+  checkConnectionWhileIdle: false
+  evictionInterval: 10s
+  minIdleTime: 1 minute
+
+logging:
+  level: INFO
+  loggers:
+    com.ecommerce: DEBUG
+    org.hibernate: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type: TRACE
+  appenders:
+    - type: console
+      threshold: INFO
+      timeZone: UTC
+      target: stdout
+      logFormat: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    - type: file
+      threshold: DEBUG
+      timeZone: UTC
+      currentLogFilename: ./logs/ecommerce-catalog.log
+      archivedLogFilenamePattern: ./logs/ecommerce-catalog-%d{yyyy-MM-dd}-%i.log.gz
+      archivedFileCount: 30
+      maxFileSize: 10MB
+      logFormat: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+metrics:
+  frequency: 1 minute
+  reporters:
+    - type: log
+      logger: metrics
+      markerName: metrics
+
+oauth2:
+  clientId: "catalog-client"
+  clientSecret: "catalog-secret-2023"
+  scope: "catalog:read catalog:write"
+  tokenEndpoint: "https://auth.example.com/oauth/token"
+  userInfoEndpoint: "https://auth.example.com/oauth/userinfo"
+
+catalogSettings:
+  maxProductsPerPage: 100
+  defaultPageSize: 20
+  enableCategoryHierarchy: true
+  stockThreshold: 10

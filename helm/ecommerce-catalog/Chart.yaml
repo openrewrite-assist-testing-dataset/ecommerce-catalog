@@ -1,0 +1,22 @@
+apiVersion: v2
+name: ecommerce-catalog
+description: A Helm chart for E-commerce Product Catalog Service
+type: application
+version: 0.1.0
+appVersion: "2.0.0"
+keywords:
+  - ecommerce
+  - catalog
+  - products
+  - dropwizard
+home: https://github.com/openrewrite-assist-testing-dataset/ecommerce-catalog
+sources:
+  - https://github.com/openrewrite-assist-testing-dataset/ecommerce-catalog
+maintainers:
+  - name: Catalog Team
+    email: catalog-team@example.com
+dependencies:
+  - name: mysql
+    version: 9.4.0
+    repository: https://charts.bitnami.com/bitnami
+    condition: mysql.enabled
