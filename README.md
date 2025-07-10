@@ -14,7 +14,7 @@ This service provides a comprehensive API for managing product catalogs, includi
 ## Technology Stack
 
 - **Framework**: Dropwizard 3.0.x
-- **Java**: Java 17
+- **Java**: Java 21
 - **Build Tool**: Gradle 8.1
 - **Database**: MySQL with Flyway migrations
 - **ORM**: Hibernate with Criteria Queries
@@ -140,7 +140,7 @@ GET /catalog/v2/categories/{id}/products?offset=0&limit=20
 ## Setup Instructions
 
 ### Prerequisites
-- Java 17
+- Java 21
 - MySQL 8.0
 - Gradle 8.1
 
